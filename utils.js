@@ -4,6 +4,7 @@ const request=require('request');
 const fs = require('fs')
 const xmlParser = require("xml2js")
 
+// 规则校验方法2
 async function judgeItem(option, msg, bot) {
   if (typeof option === "function") {
     return option(msg, bot);
@@ -14,6 +15,7 @@ async function judgeItem(option, msg, bot) {
   return false;
 }
 
+// 规则校验方法1
 async function judgeValid(msg, bot) {
   return async function (valid) {
     if (Array.isArray(valid)) {
@@ -26,7 +28,7 @@ async function judgeValid(msg, bot) {
     return judgeItem(valid, msg, bot);
   };
 }
-
+// 微信消息图片类型解析
 async function fenxiPicMethod(text) {
   const emojiRegStr = /\<emoji.*\>/;
   const imgRegStr = /\<img.*\/\>/;
@@ -69,6 +71,8 @@ async function fenxiPicMethod(text) {
   return parseData
 }
 
+
+// 获得dat类型文件图片的方法
 function parseDat(absPath,cb){
   let extname = '.jpg';
   fs.readFile(absPath,(err,content)=>{
@@ -106,6 +110,7 @@ function parseDat(absPath,cb){
   })
 }
 
+// 获得必应图片的方法
 async function getCloudData (url) {
   // request(url).pipe(fs.createWriteStream('C:/Users/22120/Desktop/test.png'));
   return axios.get(url, {responseType: 'arraybuffer', header: { 'Content-Type': 'image/png' } }).then(async res => {
@@ -115,6 +120,7 @@ async function getCloudData (url) {
   })
 }
 
+// 获得UrlLink类型的方法
 async function getUrlLink({description, title, url, thumbnailUrl}) {
   return new UrlLink({
     description, title, url, thumbnailUrl

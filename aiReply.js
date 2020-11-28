@@ -7,8 +7,7 @@ const action = require("./action");
 const golbal = require("./golbal");
 // const fs = require("fs");
 
-const defaultSuccessMsg = "你好，我是自动回复机器人，小北";
-const defaultErrorMsg = "小北的螺丝松了，抱歉";
+const defaultErrorMsg = "米粉的螺丝松了，抱歉";
 const AIBotAPPID = 2160049045;
 const AIBotAppKey = "7dmcPPHkiQKliiSx";
 const AIBotQuestionKey = "question";
@@ -22,6 +21,7 @@ const WANGYIYUNMEDIAURL = "https://y.music.163.com"; // 网易云媒体URL
 const CaiHongPiUrl = "https://chp.shadiao.app/api.php";
 const DuJiTangUrl = "https://www.iowen.cn/jitang/api/";
 
+// 请求腾讯智能闲聊函数
 function getReqSign(params = [] /* 关联数组 */, appkey /* 字符串*/) {
   // 1. 字典升序排序
   params = params.sort((a, b) => {
@@ -55,6 +55,7 @@ function getReqSign(params = [] /* 关联数组 */, appkey /* 字符串*/) {
   return sign;
 }
 
+// 请求腾讯智能闲聊函数
 async function getTcenAiReply(text) {
   const time_stamp = Date.parse(new Date()) / 1000;
   const session = "1679861316503";
@@ -110,6 +111,7 @@ async function getTcenAiReply(text) {
   return resData;
 }
 
+// 请求腾讯看图说话函数
 async function getImageReply(url) {
   const imgData = await utils.getCloudData(url);
 
@@ -166,6 +168,7 @@ async function getImageReply(url) {
   return resData;
 }
 
+// 请求函数
 async function getAjaxData(url) {
   const resData = await axios
     .get(encodeURI(url))
@@ -179,6 +182,7 @@ async function getAjaxData(url) {
   return resData;
 }
 
+// 网易云搜索请求函数
 async function getMusicSearch(text) {
   const data = await getAjaxData(
     `${WANGYIYUNBASEURL}/search?keywords=${text}&limit=10`
@@ -200,6 +204,7 @@ async function getMusicSearch(text) {
   }
 }
 
+// 网易云歌曲详情请求函数
 async function getMusicUrlBy(id) {
   const data = await getAjaxData(`${WANGYIYUNBASEURL}/song/url?id=${id}`);
   if (data.code === 200) {
@@ -242,6 +247,7 @@ async function getMusicUrlBy(id) {
 //   return result;
 // }
 
+// 彩虹屁请求函数
 async function getcaihongpiValue() {
   const resData = await axios
     .get(CaiHongPiUrl)
@@ -258,6 +264,7 @@ async function getcaihongpiValue() {
   return result;
 }
 
+// 毒鸡汤请求函数
 async function getDujitangValue() {
   const resData = await axios
     .get(DuJiTangUrl)
@@ -278,6 +285,7 @@ async function getDujitangValue() {
   return result;
 }
 
+// 点歌流程第一步函数
 async function Step1Method(msg, bot) {
   const text = msg.text();
   try {
@@ -295,6 +303,7 @@ async function Step1Method(msg, bot) {
   }
 }
 
+// 点歌流程第二步函数
 async function Step2Method(msg, bot, list) {
   const text = msg.text();
   const index = parseInt(text);
@@ -320,44 +329,43 @@ async function Step2Method(msg, bot, list) {
   }
 }
 
-function runDianGeLiuChen() {
-  return async function (msg, bot) {
-    const msgFrom = msg.from();
+// 点歌流程函数
+async function autoDiange(msg, bot) {
+  const msgFrom = msg.from();
 
-    let fromId = "";
+  let fromId = "";
 
-    if (msgFrom && msgFrom.payload && msgFrom.payload.id) {
-      fromId = msgFrom.payload.id;
+  if (msgFrom && msgFrom.payload && msgFrom.payload.id) {
+    fromId = msgFrom.payload.id;
+  }
+
+  console.log("golbal.userCountMap[fromId]", golbal.userCountMap[fromId]);
+
+  try {
+    switch (golbal.userCountMap[fromId]) {
+      case 0:
+        await msg.say("小主，要点什么歌呢？");
+        golbal.userCountMap[fromId] += 1;
+        break;
+      case 1:
+        golbal.musicList[fromId] = await Step1Method(msg, bot);
+        golbal.userCountMap[fromId] += 1;
+        break;
+      case 2:
+        await Step2Method(msg, bot, golbal.musicList[fromId]);
+        await msg.say("点歌完成，米粉告退啦~");
+        golbal.userCountMap[fromId] = 0;
+        golbal.diangeStatus[fromId] = false;
+        break;
+      default:
+        break;
     }
-
-    console.log('golbal.userCountMap[fromId]', golbal.userCountMap[fromId]);
-
-    try {
-      switch (golbal.userCountMap[fromId]) {
-        case 0:
-          await msg.say("小主，要点什么歌呢？");
-          golbal.userCountMap[fromId] += 1;
-          break;
-        case 1:
-          golbal.musicList[fromId] = await Step1Method(msg, bot);
-          golbal.userCountMap[fromId] += 1;
-          break;
-        case 2:
-          await Step2Method(msg, bot, golbal.musicList[fromId]);
-          await msg.say("点歌完成，小北告退啦~");
-          golbal.userCountMap[fromId] = 0;
-          golbal.diangeStatus[fromId] = false;
-          break;
-        default:
-          break;
-      }
-    } catch (e) {
-      await msg.say("点歌失败，如需点歌，请重新输入 '点歌'");
-      golbal.userCountMap[fromId] = 0;
-      golbal.diangeStatus[fromId] = false;
-      console.log("e", e);
-    }
-  };
+  } catch (e) {
+    await msg.say("点歌失败，如需点歌，请重新输入 '点歌'");
+    golbal.userCountMap[fromId] = 0;
+    golbal.diangeStatus[fromId] = false;
+    console.log("e", e);
+  }
 }
 
 module.exports = {
@@ -368,5 +376,5 @@ module.exports = {
   getImageReply,
   getMusicSearch,
   getMusicUrlBy,
-  autoDiange: runDianGeLiuChen(),
+  autoDiange,
 };

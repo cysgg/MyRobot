@@ -4,6 +4,7 @@ const action = require("./action");
 const aiReply = require("./aiReply.js");
 const utils = require("./utils");
 
+// 基本规则
 async function DefalutRuleMethod(msg, bot) {
   const msgFrom = msg.from();
   const msgRoom = msg.room();
@@ -14,13 +15,10 @@ async function DefalutRuleMethod(msg, bot) {
     fromId = msgFrom.payload.id;
   }
 
-  if (
-    msgFrom &&
-    msgFrom.payload &&
-    [config.CONTACT.CHENYINGSHUAI.id].includes(fromId)
-  ) {
+  if (msg.self()) {
     return false;
   }
+
   if (msg.age() > 60) {
     console.log("Message discarded because its TOO OLD(than 1 minute)");
     return false;
@@ -28,6 +26,7 @@ async function DefalutRuleMethod(msg, bot) {
   return true;
 }
 
+// 开启AI回复规则
 async function OpeAiReplyRule(msg, bot) {
   const msgFrom = msg.from();
 
@@ -48,6 +47,7 @@ async function OpeAiReplyRule(msg, bot) {
   return golbal.aiTextOpenMap[fromId];
 }
 
+// 开启AI回复方法
 async function defaultRuleRunMthod(msg, bot) {
   const text = msg.text();
 
@@ -65,6 +65,7 @@ async function defaultRuleRunMthod(msg, bot) {
   });
 }
 
+// 陈英帅消息回复规则
 async function IsChenYingShuaiRuleMethod(msg, bot) {
   const msgFrom = msg.from();
 
@@ -85,7 +86,14 @@ async function IsChenYingShuaiRuleMethod(msg, bot) {
   return false;
 }
 
+// 慧敏消息回复规则
 async function IsHuiMinRuleMethod(msg, bot) {
+  const room = msg.room()
+
+  if (room) {
+    return false
+  }
+
   const msgFrom = msg.from();
 
   let fromId = "";
@@ -105,6 +113,7 @@ async function IsHuiMinRuleMethod(msg, bot) {
   return false;
 }
 
+// 张鹏华消息回复规则
 async function IsZhangPengHuaRuleMethod(msg, bot) {
   const msgFrom = msg.from();
 
@@ -125,6 +134,7 @@ async function IsZhangPengHuaRuleMethod(msg, bot) {
   return false;
 }
 
+// 不同消息类型回复方法
 async function MsgToMeMethod(msg, bot) {
   const text = msg.text();
 
@@ -149,6 +159,8 @@ async function MsgToMeMethod(msg, bot) {
   return;
 }
 
+
+// 豌豆姑娘消息类型回复规则
 async function IsWandouMsgRuleMethod(msg, bot) {
   const msgFrom = msg.from();
 
@@ -165,6 +177,8 @@ async function IsWandouMsgRuleMethod(msg, bot) {
   return false;
 }
 
+
+// 早间新闻消息转发方法
 async function MsgToQunMethod(msg, bot) {
   const text = msg.text();
   await action.setRoomTextMsg({ id: config.C2020XIANGQINQUNID, text, bot });
@@ -177,6 +191,7 @@ async function MsgToQunMethod(msg, bot) {
   return;
 }
 
+// 嘉丽消息回复规则
 async function IsJiaLiRuleMethod(msg, bot) {
   const msgFrom = msg.from();
 
@@ -197,13 +212,7 @@ async function IsJiaLiRuleMethod(msg, bot) {
   return false;
 }
 
-async function ToReturnUrlLinkMethod(msg, bot) {
-  const text = msg.text();
-
-  return;
-}
-
-
+// 开启点歌规则
 async function openDiangeRule(msg, bot) {
   const msgFrom = msg.from();
 
@@ -220,13 +229,13 @@ async function openDiangeRule(msg, bot) {
     golbal.aiTextOpenMap[fromId] = false;
   }
 
-  console.log('golbal.diangeStatus[fromId]', golbal.diangeStatus[fromId]);
+  console.log("golbal.diangeStatus[fromId]", golbal.diangeStatus[fromId]);
 
-  return golbal.diangeStatus[fromId]
+  return golbal.diangeStatus[fromId];
 }
 
+// 点歌方法
 async function PlayMusicMethod(msg, bot) {
-
   const msgFrom = msg.from();
 
   let fromId = "";
@@ -235,8 +244,8 @@ async function PlayMusicMethod(msg, bot) {
     fromId = msgFrom.payload.id;
   }
 
-  if(!golbal.userCountMap[fromId]) {
-    golbal.userCountMap[fromId] = 0
+  if (!golbal.userCountMap[fromId]) {
+    golbal.userCountMap[fromId] = 0;
   }
 
   await aiReply.autoDiange(msg, bot);
@@ -247,12 +256,12 @@ async function PlayMusicMethod(msg, bot) {
 module.exports = {
   // 点歌
   OPENMUSICRULE: {
-    valid: [DefalutRuleMethod, openDiangeRule],
+    valid: [DefalutRuleMethod, openDiangeRule, IsHuiMinRuleMethod],
     run: PlayMusicMethod,
   },
-  // 默认校验规则
+  // 开启AI对话
   OPENREPLYRULE: {
-    valid: [DefalutRuleMethod, OpeAiReplyRule],
+    valid: [DefalutRuleMethod, OpeAiReplyRule, IsHuiMinRuleMethod],
     run: defaultRuleRunMthod,
   },
   // 自己测试
@@ -276,8 +285,8 @@ module.exports = {
   //   run: PlayMusicMethod,
   // },
   // 豌豆新闻消息转发给2020届相亲群, 朗澈前端群
-  WANDOUNEWSTOQUN: {
-    valid: [IsWandouMsgRuleMethod],
-    run: MsgToQunMethod,
-  },
+  // WANDOUNEWSTOQUN: {
+  //   valid: [IsWandouMsgRuleMethod],
+  //   run: MsgToQunMethod,
+  // },
 };

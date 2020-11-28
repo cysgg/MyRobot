@@ -24,12 +24,14 @@ module.exports.CONTACT = {
     alias: "张鹏华"
   }
 };
-module.exports.EVOKETEXT = "小北"; // 唤起语
-module.exports.EXITTEXT = "小北再见"; // 结束语
+module.exports.EVOKETEXT = "米粉"; // 唤起语
+module.exports.EXITTEXT = "米粉再见"; // 结束语
 module.exports.RESTYPECAIHONGPI = "彩虹屁"; // 彩虹屁
 module.exports.RESTYPEDUJITANG = "毒鸡汤"; // 毒鸡汤
+
+module.exports.ROBOTSTARTMSG = `你好，我是自动回复机器人，米粉, 现支持["毒鸡汤"] , ["彩虹屁"] , ["点歌"] 功能, 快来试用吧`; // 开机信息
 module.exports.FIRSTMSG =
-  '小北来啦, 现有["毒鸡汤"] , ["彩虹屁"] 功能, 快来试用吧'; // 第一句话
+  '米粉来啦, 现有["毒鸡汤"] , ["彩虹屁"] 功能, 快来试用吧'; // 第一句话
 module.exports.BINGYINGDAYURL =
   "http://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1"; // 必应每日图片
 module.exports.DAILYPICBASEURL = "http://h2.ioliu.cn/bing"; // 必应图片基础路径

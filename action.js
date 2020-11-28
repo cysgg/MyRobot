@@ -2,6 +2,7 @@ const axios = require("axios");
 const config = require("./config");
 const { FileBox } = require("file-box");
 
+// 通过群Id向某个群发消息
 async function setRoomTextMsg({ id, text, bot }) {
   const rooms = await bot.Room.findAll({ id });
 
@@ -12,6 +13,7 @@ async function setRoomTextMsg({ id, text, bot }) {
   return;
 }
 
+// 获得每日时间图片函数
 async function getDailyData() {
   const data = await axios
     .get(config.BINGYINGDAYURL)
@@ -39,6 +41,7 @@ async function getDailyData() {
   return data;
 }
 
+// 得到封装过后的mp3数据文件
 async function getMusicData(musicUrl) {
   const fileBox = FileBox.fromUrl(musicUrl);
   const result = { music: fileBox };
